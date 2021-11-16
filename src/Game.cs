@@ -1,13 +1,10 @@
-﻿using Joonaxii.Math;
-using Joonaxii.Physics.Demo.Entities;
+﻿using Joonaxii.Engine.Components;
+using Joonaxii.Engine.Core;
+using Joonaxii.Math;
 using Joonaxii.Physics.Demo.Physics;
 using Joonaxii.Physics.Demo.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Joonaxii.Physics.Demo
 {
@@ -90,7 +87,7 @@ namespace Joonaxii.Physics.Demo
             rb = new Rigidbody();
 
             rb.SetPosition(new Vector2(-0, 12.0f));
-            rb.SetVelocity(new Vector2(0.35f, -0.35f));
+            rb.SetVelocity(new Vector2(1, -0.05f) * 45);
 
             rendererTest.SetPosition(rb.Position);
             rendererTestCirc.SetPosition(rb.Position);
@@ -222,7 +219,7 @@ namespace Joonaxii.Physics.Demo
                 Vector2 aa = new Vector2(absvX, absvY);
                 float aaA = System.Math.Abs(MathJX.Angle(aa, Vector2.one));
 
-                b = (byte)(aaA > 90 * MathJX.Deg2Rad ? (absvX < absvY ? 1 : 0) : 2);
+                b = (byte)(aaA < 90 ? (absvX < absvY ? 1 : 0) : 2);
 
                 rendererTest.FlipX = !isRight;
                 rendererTest.FlipY = !isUp;
@@ -260,8 +257,11 @@ namespace Joonaxii.Physics.Demo
                 rendererTest.SetPosition(trPlr.LocalPosition);
                 rendererTestCirc.SetPosition(trCircle.WorldPosition);
 
-                _renderer.WriteReserved($"FPS (Main): {time.FrameRate}", 0, 0, 24);
-                _renderer.WriteReserved($"FPS (Render): {_renderThread.Time.FrameRate}", 0, 1, 24);
+                _renderer.WriteReserved($"FPS (Main): {time.FrameRate}", 0, 0, 32);
+                _renderer.WriteReserved($" -Time: {time.RunTime}", 0, 1, 32);
+         
+                _renderer.WriteReserved($"FPS (Render): {_renderThread.Time.FrameRate}", 0, 3, 32);
+                _renderer.WriteReserved($" -Time: {_renderThread.Time.RunTime}", 0, 4, 32);
             }
         }
     }
