@@ -1,5 +1,6 @@
 ﻿using Joonaxii.Collections;
 using Joonaxii.Engine.Core;
+using Joonaxii.MathJX;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,13 +43,17 @@ namespace Joonaxii.Physics.Demo.Rendering
         private PriorityQueue<SpriteRenderer> _batch = new PriorityQueue<SpriteRenderer>();
 
         private Dictionary<ushort, ushort> _regionLengths = new Dictionary<ushort, ushort>();
-
         private Queue<(string data, int x, int y)> _infoTexts = new Queue<(string data, int x, int y)>();
+
+        public Rect Bounds { get => _bounds; }
+        private Rect _bounds;
 
         public TXTRenderer()
         {
             Instance = this;
             _reservedInfoArea = new BitArray(INFO_HEIGHT * BUFFER_W, false);
+
+            _bounds = new Rect(Vector2.zero, new Vector2(BUFFER_W, GAME_AREA_HEIGHT));
 
             ClearInfoArea(true);
             ConsoleHelper.SetCurrentFont("Terminal", 8, 8);
@@ -299,11 +304,13 @@ namespace Joonaxii.Physics.Demo.Rendering
                 for (int i = 0; i < _renderers.Count; i++)
                 {
                     var rend = _renderers[i];
-                    if (rend.IsActive)
+                    if (rend.Enabled)
                     {
-                        _batch.Enqueue(rend);
+                        _batch.Enqueue(rend, false);
                     }
                 }
+
+                _batch.Sort();
             }
 
             while(_batch.Count > 0)

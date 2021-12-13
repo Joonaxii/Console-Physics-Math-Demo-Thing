@@ -15,13 +15,20 @@ namespace Joonaxii.Engine.Core
 
         public override string ToString() => name;
 
-
         protected virtual void OnInstantiate<T>(T source) where T : Object
         {
             source.name = name;
         }
 
         protected virtual void OnInstantiate() { }
+
+        public static Object Instantiate(Type type)       
+        {
+            if (!type.IsSubclassOf(typeof(Object))) { return null; }
+            Object temp = Activator.CreateInstance(type) as Object;
+            temp.OnInstantiate();
+            return temp;
+        }
 
         public static T Instantiate<T>() where T : Object
         {
@@ -42,8 +49,18 @@ namespace Joonaxii.Engine.Core
             name = null;
         }
 
+        public static void Destroy<T>(ref T obj) where T : Object
+        {
+            if (obj == null) { return; }
+
+            obj.OnDestroy();
+            obj = null;
+        }
+
         public static void Destroy(ref Object obj) 
         {
+            if(obj == null) { return; }
+
             obj.OnDestroy();
             obj = null;
         }

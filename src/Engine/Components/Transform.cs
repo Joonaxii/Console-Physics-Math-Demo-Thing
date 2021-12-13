@@ -1,4 +1,4 @@
-﻿using Joonaxii.Math;
+﻿using Joonaxii.MathJX;
 using System.Collections.Generic;
 using Joonaxii.Engine.Core;
 
@@ -107,6 +107,8 @@ namespace Joonaxii.Engine.Components
         public Matrix3x3 LocalMatrix { get => _localMatrix; }
         public Matrix3x3 WorldMatrix { get => _worldMatrix; }
 
+        public int ChildCount { get => _children.Count; }
+
         private Matrix3x3 _localMatrix;
         private Matrix3x3 _worldMatrix;
 
@@ -127,6 +129,8 @@ namespace Joonaxii.Engine.Components
             tr.UpdateWorld(true);
             tr._parent = null;
         }
+
+        public Transform GetChild(int index) => _children[index];
 
         private void UpdateWorld(bool setLocalToWorld)
         {
@@ -188,7 +192,9 @@ namespace Joonaxii.Engine.Components
         }
 
         protected override void OnDestroy()
-        {
+        { 
+            Destroy(ref _go);
+
             base.OnDestroy();
             for (int i = 0; i < _children.Count; i++)
             {

@@ -1,6 +1,6 @@
 ﻿using Joonaxii.Engine.Components;
 using Joonaxii.Engine.Core;
-using Joonaxii.Math;
+using Joonaxii.MathJX;
 using Joonaxii.Physics.Demo.Physics;
 using Joonaxii.Physics.Demo.Rendering;
 using System;
@@ -38,13 +38,13 @@ namespace Joonaxii.Physics.Demo
                 Console.WriteLine($"Generating Circles... {i + 1}/{count}".PadRight(64));
             }
 
-            rendererTest = new SpriteRenderer();
+            rendererTest = new SpriteRenderer(null);
             rendererTest.IsActive = true;
             rendererTest.layer.SetLayer("Default");
             rendererTest.layer.SetOrder(10);
 
-            SpriteRenderer rendererGround = new SpriteRenderer();
-            SpriteRenderer rendererRoof = new SpriteRenderer();
+            SpriteRenderer rendererGround = new SpriteRenderer(null);
+            SpriteRenderer rendererRoof = new SpriteRenderer(null);
 
             SpriteRenderer rendererWallL = new SpriteRenderer();
             SpriteRenderer rendererWallR = new SpriteRenderer();
@@ -86,17 +86,17 @@ namespace Joonaxii.Physics.Demo
             rendererTest.sprite = radiusB < 1 ? null : _radiusToSprite[radiusB];
             rb = new Rigidbody();
 
-            rb.SetPosition(new Vector2(-0, 12.0f));
-            rb.SetVelocity(new Vector2(1, -0.05f) * 45);
+            //rb.SetPosition(new Vector2(-0, 12.0f));
+            //rb.SetVelocity(new Vector2(1, -0.05f) * 45);
 
-            rendererTest.SetPosition(rb.Position);
-            rendererTestCirc.SetPosition(rb.Position);
+            //rendererTest.SetPosition(rb.Position);
+            //rendererTestCirc.SetPosition(rb.Position);
 
-            rendererGround.SetPosition(new Vector2(0, Rigidbody.FLOOR_HEIGHT));
-            rendererRoof.SetPosition(new Vector2(0, Rigidbody.ROOF_HEIGHT));
+            //rendererGround.SetPosition(new Vector2(0, Rigidbody.FLOOR_HEIGHT));
+            //rendererRoof.SetPosition(new Vector2(0, Rigidbody.ROOF_HEIGHT));
 
-            rendererWallL.SetPosition(new Vector2(-Rigidbody.WALL_POS, 0));
-            rendererWallR.SetPosition(new Vector2(Rigidbody.WALL_POS, 0));
+            //rendererWallL.SetPosition(new Vector2(-Rigidbody.WALL_POS, 0));
+            //rendererWallR.SetPosition(new Vector2(Rigidbody.WALL_POS, 0));
 
             TXTure.LoadLegacy("res/Player_R.sprt", out var txtPlrR, out sprtPlrR);
             TXTure.LoadLegacy("res/Player_U.sprt", out var txtPlrU, out sprtPlrU);

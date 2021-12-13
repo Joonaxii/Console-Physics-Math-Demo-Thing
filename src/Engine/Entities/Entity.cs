@@ -1,29 +1,21 @@
-﻿using Joonaxii.Physics.Demo.Physics;
-using Joonaxii.Physics.Demo.Rendering;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Joonaxii.Engine.Entities
 {
-    public abstract class Entity
+    public class Entity : Behavior
     {
-        public bool IsActive { get; private set; }
-
-        protected SpriteRenderer _renderer;
-        protected Rigidbody _rb;
-
-        protected float _time;
-
-        public void Update(float delta)
+        protected override void EarlyUpdate(float delta)
         {
-            if (!IsActive) { return; }
-            EarlyUpdate(delta);
-
-            _time += delta;
-            _rb.Update(delta);
-
-            LateUpdate(delta);
+           
         }
 
-        protected abstract void EarlyUpdate(float delta);
-        protected abstract void LateUpdate(float delta);
+        protected override void LateUpdate(float delta)
+        {
+            
+        }
     }
 }

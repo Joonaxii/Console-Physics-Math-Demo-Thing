@@ -55,8 +55,16 @@
     <Reference Include="Joonaxii.Collections">
       <HintPath>F:\Projects\Portfolio Stuff\Joonaxii Implementations ETC\Joonaxii\Joonaxii.Collections\bin\Release\Joonaxii.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="Joonaxii.Math">
-      <HintPath>F:\Projects\Portfolio Stuff\Joonaxii Implementations ETC\Joonaxii\Joonaxii.Math\obj\Release\Joonaxii.Math.dll</HintPath>
+    <Reference Include="Joonaxii.IO, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Joonaxii.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="Joonaxii.MathJX">
+      <HintPath>lib\Joonaxii.MathJX.dll</HintPath>
+    </Reference>
+    <Reference Include="Joonaxii.Pooling, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Joonaxii.Pooling.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -78,6 +86,7 @@
     <Compile Include="src\Engine\Core\BufferEX.cs" />
     <Compile Include="src\Engine\Entities\Entity.cs" />
     <Compile Include="src\Engine\Components\Transform.cs" />
+    <Compile Include="src\Engine\Rendering\TransformConstraints.cs" />
     <Compile Include="src\Game.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Engine\Core\GameObject.cs" />
