@@ -5,19 +5,19 @@ namespace Joonaxii.Engine.Core
 {
     public class Object
     {
-        public string name;
+        public virtual string Name { get; set; }
    
         public Object() : this("") { }
         public Object(string name)
         {
-            this.name = name;
+            this.Name = name;
         }
 
-        public override string ToString() => name;
+        public override string ToString() => Name;
 
         protected virtual void OnInstantiate<T>(T source) where T : Object
         {
-            source.name = name;
+            source.Name = Name;
         }
 
         protected virtual void OnInstantiate() { }
@@ -46,7 +46,7 @@ namespace Joonaxii.Engine.Core
 
         protected virtual void OnDestroy()
         {
-            name = null;
+            Name = null;
         }
 
         public static void Destroy<T>(ref T obj) where T : Object

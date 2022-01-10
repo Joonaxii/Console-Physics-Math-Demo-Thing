@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Joonaxii.Physics.Demo.Rendering
+namespace Joonaxii.Engine.Rendering.TXT
 {
     public static class ConsoleHelper
     {
@@ -23,7 +18,6 @@ namespace Joonaxii.Physics.Demo.Rendering
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern bool GetCurrentConsoleFontEx(IntPtr hConsoleOutput, bool MaximumWindow, ref FontInfo ConsoleCurrentFontEx);
-
 
         private static readonly IntPtr ConsoleOutputHandle = GetStdHandle(StandardOutputHandle);
 

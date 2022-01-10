@@ -2,9 +2,9 @@
 using Joonaxii.MathJX;
 using System;
 
-namespace Joonaxii.Physics.Demo.Rendering
+namespace Joonaxii.Engine.Rendering.TXT
 {
-    public class Sprite
+    public class TXTSprite
     {
         public string Name { get; private set; }
 
@@ -20,7 +20,7 @@ namespace Joonaxii.Physics.Demo.Rendering
         private TXTure _source;
         private Rect _bounds;
 
-        private Sprite(TXTure source, string name, uint start, ushort w, ushort h, Vector2 pivot)
+        private TXTSprite(TXTure source, string name, uint start, ushort w, ushort h, Vector2 pivot)
         {
             Name = name;
 
@@ -113,9 +113,9 @@ namespace Joonaxii.Physics.Demo.Rendering
                             Vector2 point = mat.RotatePoint(pos);
 
                             int xX = (int)(point.x + xWrld);
-                            int yY = /*(TXTRenderer.GAME_AREA_HEIGHT - 1) -*/ (int)(point.y + yWrld);
+                            int yY = (TXTRenderer.GAME_AREA_HEIGHT - 1) - (int)(point.y + yWrld);
                             if (xX < 0 || xX >= TXTRenderer.BUFFER_W || yY < 0 || yY >= TXTRenderer.GAME_AREA_HEIGHT) { continue; }
-                            yY += TXTRenderer.GAME_AREA_HEIGHT;
+                            yY += TXTRenderer.GAME_AREA_START;
 
                             uint iO = (uint)(ogY * Width + ogX);
                             int iB = yY * TXTRenderer.BUFFER_W + xX;
@@ -132,11 +132,7 @@ namespace Joonaxii.Physics.Demo.Rendering
                     }
                     break;
             }
-
-
-            //position += _offset;
-
-          
+            //position += _offset;       
         }
 
         public void Draw(Vector2Int position, char[] buffer, uint[] depthBuffer, uint depth, bool flipX, bool flipY)
@@ -168,7 +164,7 @@ namespace Joonaxii.Physics.Demo.Rendering
             }
         }
 
-        public static Sprite Create(TXTure source, string name, uint start, ushort w, ushort h, Vector2 pivot) => 
-            new Sprite(source, name, start, w, h, pivot);
+        public static TXTSprite Create(TXTure source, string name, uint start, ushort w, ushort h, Vector2 pivot) => 
+            new TXTSprite(source, name, start, w, h, pivot);
     }
 }

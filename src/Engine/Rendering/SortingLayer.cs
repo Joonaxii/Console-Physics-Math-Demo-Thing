@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Joonaxii.Physics.Demo.Rendering
+namespace Joonaxii.Engine.Rendering
 {
     [StructLayout(LayoutKind.Explicit, Size = 4)]
     public struct SortingLayer : IComparable<SortingLayer>

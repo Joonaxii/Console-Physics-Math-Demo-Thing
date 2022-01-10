@@ -3,9 +3,9 @@ using Joonaxii.Engine.Core;
 using Joonaxii.MathJX;
 using System;
 
-namespace Joonaxii.Physics.Demo.Rendering
+namespace Joonaxii.Engine.Rendering.TXT
 {
-    public class SpriteRenderer : Component, IComparable<SpriteRenderer>
+    public class TXTSpriteRenderer : Component, IComparable<TXTSpriteRenderer>
     {
         public Action onBecomeVisible;
         public Action onBecomeInvisible;
@@ -18,26 +18,19 @@ namespace Joonaxii.Physics.Demo.Rendering
         public bool IsVisible { get; private set; }
 
         public SortingLayer layer;
-        public Sprite sprite;
+        public TXTSprite sprite;
 
         private Rect _bounds;
 
         private Transform _transform;
         private TransformConstraints _constraints;
 
-        public SpriteRenderer(Transform transform)
-        {
-            _transform = transform;
-            _constraints = TransformConstraints.None;
-            TXTRenderer.Instance.RegisterRenderer(this);
-        }
-
         public void SetTransformConstraints(TransformConstraints constraints)
         {
             _constraints = constraints;
         }
 
-        public int CompareTo(SpriteRenderer other)
+        public int CompareTo(TXTSpriteRenderer other)
         {
             return other.layer.CompareTo(layer);
         }
@@ -45,7 +38,7 @@ namespace Joonaxii.Physics.Demo.Rendering
         protected override void OnInstantiate<T>(T source)
         {
             base.OnInstantiate(source);
-            if(source is SpriteRenderer sp)
+            if(source is TXTSpriteRenderer sp)
             {
                 FlipX = sp.FlipX;
                 FlipY = sp.FlipY;
@@ -64,13 +57,14 @@ namespace Joonaxii.Physics.Demo.Rendering
         protected override void SetGameObject(GameObject go)
         {
             base.SetGameObject(go);
-            _transform = go.Transform;
+            _transform = _go.Transform;
+            _constraints = TransformConstraints.None;
+            TXTRenderer.Instance.RegisterRenderer(this);
         }
 
         public void Draw(char[] buffer, uint[] depthBuffer)
         {
             if (!_enabled || sprite == null || _transform == null) { return; }
-
             var mat = _transform.WorldMatrix;
             _bounds = sprite.Bounds;
 

@@ -1,14 +1,10 @@
 ﻿using Joonaxii.Engine.Components;
-using Joonaxii.Math;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Joonaxii.Engine.Entities;
+using Joonaxii.MathJX;
 
-namespace Joonaxii.Physics.Demo.Physics
+namespace Joonaxii.Engine.Physics
 {
-    public class Rigidbody
+    public class Rigidbody : Behavior
     {
         public const float GRAVITY = -9.81f;
 
@@ -19,28 +15,25 @@ namespace Joonaxii.Physics.Demo.Physics
 
         public const float TERMINAL_VELOCITY = -20.0f;
 
-        public Transform Transform { get; private set; }
-
         public float Radius { get; set; }
         public bool IsActive { get; set; } = true;
 
         public float Mass { get; private set; } = 1f;
         public Vector2 Velocity { get => _velocity; }
-        public Vector2 Position { get => _position; }
+        public Vector2 Position { get => Transform.WorldPosition; }
 
         private float _bounciness = 1f;
         private float _drag = 0.05f;
         private float _gravityScale = 0f;
         private Vector2 _velocity;
 
-        private Vector2 _position;
         public void SetVelocity(Vector2 vel) => _velocity = vel;
-        public void SetPosition(Vector2 pos) => _position = pos;
 
         private bool _isGrounded;
         private float _acc;
 
-        public void Update(float delta)
+        protected override void LateUpdate(float delta) { }
+        protected override void EarlyUpdate(float delta)
         {
             if (!IsActive) { return; }
             if (!_isGrounded)
@@ -51,19 +44,20 @@ namespace Joonaxii.Physics.Demo.Physics
                 _velocity.y = System.Math.Max(TERMINAL_VELOCITY, _velocity.y);
             }
 
-            _position += _velocity * delta;
+            Vector2 position = Transform.WorldPosition;
+            position += _velocity * delta;
     
-            float yBot = _position.y - Radius;
-            float yTop = _position.y + Radius;
+            float yBot = position.y - Radius;
+            float yTop = position.y + Radius;
 
-            float xLeft = _position.x - Radius;
-            float xRight = _position.x + Radius;
+            float xLeft = position.x - Radius;
+            float xRight = position.x + Radius;
 
             float b = (float)System.Math.Pow(_bounciness, 1.05f);
 
             if (xLeft <= -WALL_POS)
             {
-                _position.x = -WALL_POS + Radius;
+                position.x = -WALL_POS + Radius;
                 _velocity = Vector2.Reflect(_velocity, Vector2.right);
                 _velocity.x *= b;
                 _velocity.x = _velocity.x < BOUNCE_THRESHOLD ? 0 : _velocity.x;
@@ -71,7 +65,7 @@ namespace Joonaxii.Physics.Demo.Physics
 
             if (xRight >= WALL_POS)
             {
-                _position.x = WALL_POS - Radius;
+                position.x = WALL_POS - Radius;
                 _velocity = Vector2.Reflect(_velocity, Vector2.left);
                 _velocity.x *= b;
                 _velocity.x = _velocity.x > -BOUNCE_THRESHOLD ? 0 : _velocity.x;
@@ -79,7 +73,7 @@ namespace Joonaxii.Physics.Demo.Physics
 
             if (yTop >= ROOF_HEIGHT)
             {
-                _position.y = ROOF_HEIGHT - Radius;
+                position.y = ROOF_HEIGHT - Radius;
                 _velocity = Vector2.Reflect(_velocity, Vector2.down);
                 _velocity.y *= b;
                 _velocity.y = _velocity.y > -BOUNCE_THRESHOLD ? 0 : _velocity.y;
@@ -87,7 +81,7 @@ namespace Joonaxii.Physics.Demo.Physics
 
             if (yBot <= FLOOR_HEIGHT)
             {
-                _position.y = FLOOR_HEIGHT + Radius;
+                position.y = FLOOR_HEIGHT + Radius;
                 if (!_isGrounded)
                 {
                     _acc = 0;
@@ -104,6 +98,7 @@ namespace Joonaxii.Physics.Demo.Physics
                     _isGrounded = false;
                 }
             }
+            Transform.WorldPosition = position;
         }
     }
 }

@@ -5,6 +5,12 @@ namespace Joonaxii.Engine.Components
 {
     public class Component : Object
     {
+        public override string Name 
+        { 
+            get => _go.Name;
+            set { }
+        }
+
         private static MethodInfo _removeComp { get; } = typeof(GameObject).GetMethod("RemoveComponent", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public bool Enabled 
@@ -26,10 +32,14 @@ namespace Joonaxii.Engine.Components
         public GameObject GameObject { get => _go; }
         protected GameObject _go;
 
+        public Transform Transform { get => _go.Transform; }
+
         protected virtual void SetGameObject(GameObject go) => _go = go;
 
         public virtual void OnEnable() { }
         public virtual void OnDisable() { }
+
+        public virtual void Update(float delta) { }
 
         protected override void OnInstantiate<T>(T source)
         {
@@ -52,5 +62,7 @@ namespace Joonaxii.Engine.Components
             if (_enabled) { OnEnable(); return; }
             OnDisable();
         }
+
+        public override string ToString() => $"{GetType().Name} {typeof(GameObject).Name}({Name})";
     }
 }

@@ -45,6 +45,7 @@ namespace Joonaxii.Engine.Core
         {
             _components = new List<Component>();
             _transform = AddComponent<Transform>();
+            GameObjectManager.Instance.RegisterGameObject(this);
         }
 
         public GameObject(string name, params Type[] components) : base(name)
@@ -101,6 +102,14 @@ namespace Joonaxii.Engine.Core
             for (int i = 0; i < _transform.ChildCount; i++)
             {
                 _transform.GameObject.RecursiveSetActiveHierarchy(active);
+            }
+        }
+
+        public void TriggerUpdate(float delta)
+        {
+            for (int i = 0; i < _components.Count; i++)
+            {
+                _components[i].Update(delta);
             }
         }
 

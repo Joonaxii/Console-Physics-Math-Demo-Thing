@@ -1,7 +1,5 @@
 ﻿using Joonaxii.Engine.Components;
 using Joonaxii.Engine.Core;
-using Joonaxii.Physics.Demo.Physics;
-using Joonaxii.Physics.Demo.Rendering;
 
 namespace Joonaxii.Engine.Entities
 {
@@ -9,7 +7,7 @@ namespace Joonaxii.Engine.Entities
     {
         protected float _time;
 
-        public void Update(float delta)
+        public override void Update(float delta)
         {
             if (!_enabled) { return; }
 

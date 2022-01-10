@@ -1,20 +1,28 @@
-﻿using Joonaxii.Collections;
+﻿using Joonaxii.Collections.ListQueue;
 using Joonaxii.Engine.Core;
 using Joonaxii.MathJX;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using MathSys = System.Math;
 
-namespace Joonaxii.Physics.Demo.Rendering
+namespace Joonaxii.Engine.Rendering.TXT
 {
     public class TXTRenderer
     {
         public static TXTRenderer Instance;
 
-        public const int BUFFER_W = 128;
-        public const int BUFFER_H = BUFFER_W;
+        public const int SCREEN_W = 960;
+        public const int SCREEN_H = 960;
+        
+        public const int RES_X = SCREEN_W + 36;
+        public const int RES_Y = SCREEN_H + 48;
+        
+        public const int OFFSET_X = (RES_X / 2);
+        public const int OFFSET_Y = (RES_Y / 2);
+
+        public const int BUFFER_W = (int)(SCREEN_W / 8);
+        public const int BUFFER_H = (int)(SCREEN_H / 8);
 
         public const int INFO_START_Y = 0;
         public const int INFO_HEIGHT = 10;
@@ -31,16 +39,54 @@ namespace Joonaxii.Physics.Demo.Rendering
         private const int SC_SIZE = 0xF000;
 
         [DllImport("user32.dll")]
-        private static extern int DeleteMenu(IntPtr hMenu, int nPosition, int wFlags);
-
-        [DllImport("user32.dll")]
         private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetConsoleWindow();
 
-        private List<SpriteRenderer> _renderers = new List<SpriteRenderer>(512);
-        private PriorityQueue<SpriteRenderer> _batch = new PriorityQueue<SpriteRenderer>();
+        [DllImport("kernel32.dll", EntryPoint = "GetStdHandle", SetLastError = true, CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        private static extern IntPtr GetStdHandle(int nStdHandle);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetConsoleCursorInfo(IntPtr hConsoleOutput, [In, Out] ConsoleCursorInfo lpConsoleCursorInfo);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetConsoleCursorInfo(IntPtr hConsoleOutput, [In] ConsoleCursorInfo lpConsoleCursorInfo);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern UInt32 GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
+
+        [DllImport("kernel32.dll")]
+        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+        [DllImport("kernel32.dll")]
+        static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetConsoleScreenBufferInfo(IntPtr hConsoleOutput, [Out] ConsoleScreenBufferInfo lpConsoleScreenBufferInfo);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetConsoleScreenBufferSize(IntPtr hConsoleOutput, Coord dwSize);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetWindowRect(IntPtr hWnd, out SmallRect lpRect);
+        
+        [DllImport("user32.dll", SetLastError = false)]
+        private static extern IntPtr GetDesktopWindow();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+
+        private List<TXTSpriteRenderer> _renderers = new List<TXTSpriteRenderer>(512);
+        private ListQueue<TXTSpriteRenderer> _batch = new ListQueue<TXTSpriteRenderer>();
 
         private Dictionary<ushort, ushort> _regionLengths = new Dictionary<ushort, ushort>();
         private Queue<(string data, int x, int y)> _infoTexts = new Queue<(string data, int x, int y)>();
@@ -55,24 +101,109 @@ namespace Joonaxii.Physics.Demo.Rendering
 
             _bounds = new Rect(Vector2.zero, new Vector2(BUFFER_W, GAME_AREA_HEIGHT));
 
+            Console.OutputEncoding = System.Text.Encoding.ASCII;
+
             ClearInfoArea(true);
             ConsoleHelper.SetCurrentFont("Terminal", 8, 8);
-            SetSize(BUFFER_W, BUFFER_H + 1);
+            SetSize(OFFSET_X, OFFSET_Y, RES_X, RES_Y, BUFFER_W, BUFFER_H);
+
+            Setup();
         }
 
-        public static void SetSize(int width, int height)
+        private const uint WS_MAXIMIZEBOX = 0x00010000;
+        private const uint WS_SIZEBOX = 0x00040000;
+
+        private const uint ENABLE_EXTENDED_FLAGS = 0x0080;
+        private const uint ENABLE_MOUSE_INPUT = 0x0010;
+        private const uint ENABLE_LINE_INPUT = 0x0002;
+        private const uint ENABLE_QUICK_EDIT_MODE = 0x0040;
+        private static void Setup()
         {
-            int w = MathSys.Min(width, Console.LargestWindowWidth);
-            int h = MathSys.Min(height, Console.LargestWindowHeight);
+            var console = GetConsoleWindow();
+            SetWindowLong(console, -16, GetWindowLong(console, -16) & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX);
 
-            Console.SetWindowSize(w, h);
-            IntPtr consolePtr = GetConsoleWindow();
+            var hInput = GetStdHandle(-10);
+            GetConsoleMode(hInput, out var prev);
+            SetConsoleMode(hInput, ENABLE_EXTENDED_FLAGS | (prev & ~ENABLE_MOUSE_INPUT & ~ENABLE_LINE_INPUT & ~ENABLE_QUICK_EDIT_MODE));
 
-            DeleteMenu(GetSystemMenu(consolePtr, false), SC_MAXIMIZE, CMD);
-            DeleteMenu(GetSystemMenu(consolePtr, false), SC_SIZE, CMD);
+            ToggleCursor(false);
         }
 
-        public void RegisterRenderer(SpriteRenderer rend)
+        [StructLayout(LayoutKind.Sequential)]
+        private class ConsoleCursorInfo
+        {
+            public uint dwSize;
+            [MarshalAs(UnmanagedType.Bool)]
+            public bool bVisible;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private class Coord
+        {
+            public short x;
+            public short y;
+
+            public Coord(short x, short y)
+            {
+                this.x = x;
+                this.y = y;
+            }
+        }
+              
+        [StructLayout(LayoutKind.Sequential)]
+        private class SmallRect
+        {
+            public short left;
+            public short top;
+
+            public short right;
+            public short bottom;     
+        }
+            
+        [StructLayout(LayoutKind.Sequential)]
+        private class ConsoleScreenBufferInfo
+        {
+            public Coord dwSize;
+            public Coord dwCursorPosition;
+
+            public short wAttributes;
+            public SmallRect srWindow;
+
+            public Coord dwMaximumWindowSize;
+        }
+
+        public static void ToggleCursor(bool toggle)
+        {
+            var hndl = GetStdHandle(-11);
+
+            ConsoleCursorInfo info = new ConsoleCursorInfo();
+            GetConsoleCursorInfo(hndl, info);
+            info.dwSize = 1;
+            info.bVisible = toggle;
+
+            SetConsoleCursorInfo(hndl, info);
+        }
+
+        public static void SetSize(int x, int y, int width, int height, int cW, int cH)
+        {
+            var console = GetConsoleWindow();
+
+            var scrn = GetDesktopWindow();
+            GetWindowRect(scrn, out var screenRect);
+
+            if(screenRect == null) { screenRect = new SmallRect() { bottom = 0, left = 0, right = 1920, top = 1080 }; }
+
+            int w = screenRect.right - screenRect.left;
+            int h = screenRect.bottom - screenRect.top;
+
+            Coord coord = new Coord((short)cW, (short)cH);
+
+            var hConsoleOutput = GetStdHandle(-11);
+            SetConsoleScreenBufferSize(hConsoleOutput, coord);
+            MoveWindow(console, 0, 0, width, height, true);
+        }
+
+        public void RegisterRenderer(TXTSpriteRenderer rend)
         {
             lock(_renderers)
             {
@@ -94,13 +225,10 @@ namespace Joonaxii.Physics.Demo.Rendering
 
             y++;
             if (y >= INFO_HEIGHT - 1) { return 0; }
-
             _regionLengths.TryGetValue(id, out var cLen);
-
             if(length == cLen) { return cLen; }
 
             ushort finalLen = length > cLen ? length : cLen;
-
             _regionLengths.Remove(id);
 
             ushort len = 0;
@@ -306,10 +434,9 @@ namespace Joonaxii.Physics.Demo.Rendering
                     var rend = _renderers[i];
                     if (rend.Enabled)
                     {
-                        _batch.Enqueue(rend, false);
+                        _batch.Enqueue(rend);
                     }
                 }
-
                 _batch.Sort();
             }
 

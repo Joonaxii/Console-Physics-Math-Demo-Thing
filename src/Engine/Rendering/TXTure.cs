@@ -1,11 +1,9 @@
-﻿using Joonaxii.Math;
+﻿using Joonaxii.MathJX;
 using System;
 using System.Globalization;
 using System.IO;
 
-using MathSys = System.Math;
-
-namespace Joonaxii.Physics.Demo.Rendering
+namespace Joonaxii.Engine.Rendering.TXT
 {
     public class TXTure
     {
@@ -23,14 +21,14 @@ namespace Joonaxii.Physics.Demo.Rendering
 
         public char GetPixel(uint i) => _pixels[i];
 
-        public static bool CreateFromChars(char[] chars, int w, int h, out TXTure texture, out Sprite sprite, Vector2 pivot)
+        public static bool CreateFromChars(char[] chars, int w, int h, out TXTure texture, out TXTSprite sprite, Vector2 pivot)
         {
             texture = new TXTure(chars);
-            sprite = Sprite.Create(texture, $"CUSTOM {w} x {h}", 0, (ushort)w, (ushort)h, pivot);
+            sprite = TXTSprite.Create(texture, $"CUSTOM {w} x {h}", 0, (ushort)w, (ushort)h, pivot);
             return true;
         }
 
-        public static bool CreateCircle(byte radius, float edgePower, char[] falloff, out TXTure texture, out Sprite sprite)
+        public static bool CreateCircle(byte radius, float edgePower, char[] falloff, out TXTure texture, out TXTSprite sprite)
         {
             float radH = radius * 0.5f;
 
@@ -53,18 +51,18 @@ namespace Joonaxii.Physics.Demo.Rendering
 
                     float dst = (point - center).Magnitude;
 
-                    float n = 1.0f - MathJX.Clamp((float)MathSys.Pow(dst / radH, edgePower), 0, 1);
-                    int id = MathJX.Lerp(0, len, n);
+                    float n = 1.0f - Maths.Clamp((float)Math.Pow(dst / radH, edgePower), 0, 1);
+                    int id = Maths.Lerp(0, len, n);
                     pix[y * dimX + x] = falloff[id];
                 }
             }
 
             texture = new TXTure(pix);
-            sprite = Sprite.Create(texture, $"Circle X{radius} {edgePower.ToString("F2")}", 0, (ushort)dimX, (ushort)dimY, new Vector2(0.5f, 0.4f));
+            sprite = TXTSprite.Create(texture, $"Circle X{radius} {edgePower.ToString("F2")}", 0, (ushort)dimX, (ushort)dimY, new Vector2(0.5f, 0.4f));
             return true;
         }
 
-        public static bool CreateCircle(byte radius, float edgePower, float edgeStart, float outerEdge, float innerEdge, char[] falloff, out TXTure texture, out Sprite sprite)
+        public static bool CreateCircle(byte radius, float edgePower, float edgeStart, float outerEdge, float innerEdge, char[] falloff, out TXTure texture, out TXTSprite sprite)
         {
             float radQrt = radius * 0.25f;
             float radH = radius * 0.5f;
@@ -98,28 +96,28 @@ namespace Joonaxii.Physics.Demo.Rendering
                     if (dst >= edgeStart)
                     {
                         d = (dst - edgeStart) / edgeStart;
-                        d = (float)MathSys.Pow(d, edgePower);
+                        d = (float)Math.Pow(d, edgePower);
 
-                        n = 1.0f - MathJX.Clamp(d, 0, 1);
+                        n = 1.0f - Maths.Clamp(d, 0, 1);
                     }
                     else
                     {
                         d = (edgeStart - dst) / innerEdge;
-                        d = (float)MathSys.Pow(d, edgePower);
-                        n = 1.0f - MathJX.Clamp(d, 0, 1);
+                        d = (float)Math.Pow(d, edgePower);
+                        n = 1.0f - Maths.Clamp(d, 0, 1);
                     }
 
-                    int id = MathJX.Lerp(0, len, n);
+                    int id = Maths.Lerp(0, len, n);
                     pix[y * dimX + x] = falloff[id];
                 }
             }
 
             texture = new TXTure(pix);
-            sprite = Sprite.Create(texture, $"Circle X{radius} {edgePower.ToString("F2")} {edgeStart.ToString("F2")}", 0, (ushort)dimX, (ushort)dimY, new Vector2(0.5f, 0.5f));
+            sprite = TXTSprite.Create(texture, $"Circle X{radius} {edgePower.ToString("F2")} {edgeStart.ToString("F2")}", 0, (ushort)dimX, (ushort)dimY, new Vector2(0.5f, 0.5f));
             return true;
         }
 
-        public static bool LoadLegacy(string path, out TXTure texture, out Sprite sprite)
+        public static bool LoadLegacy(string path, out TXTure texture, out TXTSprite sprite)
         {
             texture = null;
             sprite = null;
@@ -171,7 +169,7 @@ namespace Joonaxii.Physics.Demo.Rendering
                     }
                 }
                 texture = new TXTure(pixels);
-                sprite = Sprite.Create(texture, name, 0, width, height, pivot);
+                sprite = TXTSprite.Create(texture, name, 0, width, height, pivot);
             }
             return true;
         }

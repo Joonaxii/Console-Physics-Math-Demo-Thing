@@ -1,4 +1,4 @@
-﻿namespace Joonaxii.Physics.Demo.Rendering
+﻿namespace Joonaxii.Engine.Rendering
 {
     [System.Flags]
     public enum TransformConstraints
